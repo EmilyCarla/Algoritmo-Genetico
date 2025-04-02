@@ -1,64 +1,64 @@
 import random
 
-POP_SIZE = 10000  # tamanho da população
-MUTATION_RATE = 0.1  # taxa de mutação
-GENERATIONS = 1000  # máximo de gerações
-TARGET_GENES = "AaBbCcDd"  # combinação genética alvo 
-GENES = "AaBbCcDd"  # possíveis alelos
+TAMANHO_POPULACAO = 10000  
+TAXA_MUTACAO = 0.50  
+GERACOES = 1000  # Maximo de gerações
+GENES_ALVO = "AaBbCcDd"  
+GENES_POSSIVEIS = "AaBbCcDd"  # Possíveis alelos
 
-# Função de aptidão(fitness) para contar quantos genes estão corretos
-def fitness_function(individual):
-    return sum(1 for i, j in zip(individual, TARGET_GENES) if i == j)
+# Função de aptidão (fitness) -> para contar quantos genes estão corretos
+def funcao_aptidao(individuo):
+    return sum(1 for i, j in zip(individuo, GENES_ALVO) if i == j)
 
-# inicialização da população com genes aleatórios
-def initialize_population(size, length):
-    return [''.join(random.choices(GENES, k=length)) for _ in range(size)]
+# Inicializa a população com genes aleatórios
+def inicializar_populacao(tamanho, comprimento):
+    return [''.join(random.choices(GENES_POSSIVEIS, k=comprimento)) for _ in range(tamanho)]
 
-# seleção por torneio
-def tournament_selection(population, fitness_values, k=3):
-    selected = random.sample(list(zip(population, fitness_values)), k)
-    return max(selected, key=lambda x: x[1])[0]
+# Seleção por torneio -> 
+def selecao_torneio(populacao, valores_aptidao, k=3):
+    selecionados = random.sample(list(zip(populacao, valores_aptidao)), k)
+    return max(selecionados, key=lambda x: x[1])[0]
 
-# crossover para combinar dois indivíduos em um ponto aleatório
-def crossover(parent1, parent2):
-    point = random.randint(1, len(TARGET_GENES) - 1)
-    child1 = parent1[:point] + parent2[point:]
-    child2 = parent2[:point] + parent1[point:]
-    return child1, child2
+# Crossover -> para combinar dois indivíduos em um ponto aleatório
+def crossover(pai1, pai2):
+    ponto = random.randint(1, len(GENES_ALVO) - 1)
+    filho1 = pai1[:ponto] + pai2[ponto:]
+    filho2 = pai2[:ponto] + pai1[ponto:]
+    return filho1, filho2
 
-# mutação para alterar um gene aleatório
-def mutate(individual):
-    if random.random() < MUTATION_RATE:
-        index = random.randint(0, len(individual) - 1)
-        new_gene = random.choice(GENES)
-        individual = individual[:index] + new_gene + individual[index+1:]
-    return individual
+# Mutação -> para alterar um gene aleatório
+def mutacao(individuo):
+    if random.random() < TAXA_MUTACAO:
+        indice = random.randint(0, len(individuo) - 1)
+        novo_gene = random.choice(GENES_POSSIVEIS)
+        individuo = individuo[:indice] + novo_gene + individuo[indice+1:]
+    return individuo
 
-# algoritmo genético principal
-def genetic_algorithm():
-    population = initialize_population(POP_SIZE, len(TARGET_GENES))
+# Algoritmo genético principal
+def algoritmo_genetico():
+    populacao = inicializar_populacao(TAMANHO_POPULACAO, len(GENES_ALVO))
     
-    for generation in range(GENERATIONS):
-        fitness_values = [fitness_function(ind) for ind in population]
-        best_individual = max(population, key=fitness_function)
+    for geracao in range(GERACOES):
+        valores_aptidao = [funcao_aptidao(ind) for ind in populacao]
+        melhor_individuo = max(populacao, key=funcao_aptidao)
         
-        print(f'Geração {generation + 1}: Melhor = {best_individual}, Aptidão = {fitness_function(best_individual)}')
+        print(f'Geração {geracao + 1}: Melhor = {melhor_individuo}, Aptidão = {funcao_aptidao(melhor_individuo)}')
         
-        if best_individual == TARGET_GENES:
+        if melhor_individuo == GENES_ALVO:
             print("Combinação genética alvo encontrada!")
             break
         
-        new_population = []
-        while len(new_population) < POP_SIZE:
-            parent1 = tournament_selection(population, fitness_values)
-            parent2 = tournament_selection(population, fitness_values)
-            child1, child2 = crossover(parent1, parent2)
-            new_population.extend([mutate(child1), mutate(child2)])
+        nova_populacao = []
+        while len(nova_populacao) < TAMANHO_POPULACAO:
+            pai1 = selecao_torneio(populacao, valores_aptidao)
+            pai2 = selecao_torneio(populacao, valores_aptidao)
+            filho1, filho2 = crossover(pai1, pai2)
+            nova_populacao.extend([mutacao(filho1), mutacao(filho2)])
         
-        population = new_population[:POP_SIZE]
+        populacao = nova_populacao[:TAMANHO_POPULACAO]
     
-    return best_individual
+    return melhor_individuo
 
-# execução do algoritmo
-best_solution = genetic_algorithm()
-print(f'Melhor combinação genética encontrada: {best_solution}')
+# Execução 
+melhor_solucao = algoritmo_genetico()
+print(f'Melhor combinação genética encontrada: {melhor_solucao}')
